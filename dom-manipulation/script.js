@@ -42,7 +42,7 @@ const quotes = [
   showRandomQuote();
   
   // Function to add a new quote dynamically
-  function addQuoteForm() {
+  function createAddQuoteForm() {
     // Get input values and trim any extra whitespace
     const quote = newQuoteText.value.trim();
     const category = newQuoteCategory.value.trim();
