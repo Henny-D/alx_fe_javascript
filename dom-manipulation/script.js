@@ -172,7 +172,7 @@ function syncQuotesWithServer(fetchedData) {
     saveQuotes();
 
     // Show notification of data sync completion
-    showNotification(`Data synced! ${conflictsResolved} conflict(s) resolved.`);
+    showNotification(`Quotes synced with server! ${conflictsResolved} conflict(s) resolved.`);
 
     // Optionally show the latest quote
     showRandomQuote();
