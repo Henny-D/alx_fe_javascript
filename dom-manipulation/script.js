@@ -13,6 +13,7 @@ const quotes = [
   const newQuoteText = document.getElementById("newQuoteText");
   const newQuoteCategory = document.getElementById("newQuoteCategory");
   const categoryFilter = document.getElementById("categoryFilter");
+  const notification = document.getElementById("notification");  // Notification element
   
   // Function to display a random quote
   function showRandomQuote() {
@@ -68,6 +69,9 @@ const quotes = [
   
     // Save quotes to local storage
     saveQuotes();
+  
+    // Post the new quote to the server
+    postData({ text: quote, category: category });
   }
   
   // Function to save quotes to local storage
@@ -126,4 +130,103 @@ const quotes = [
   
   // Populate categories on page load
   populateCategories();
+  
+  // Function to fetch data from the server (simulated)
+  function fetchData() {
+    fetch('https://jsonplaceholder.typicode.com/posts')
+      .then(response => response.json())
+      .then(data => {
+        console.log('Fetched Data:', data);
+  
+        // Sync the fetched data with the local storage
+        syncQuotesWithServer(data);
+      })
+      .catch(error => console.error('Error fetching data:', error));
+  }
+  
+  // Sync quotes with the server data (handling conflict resolution)
+  function syncQuotesWithServer(fetchedData) {
+    const serverQuotes = fetchedData.map(post => ({
+      text: post.title,
+      category: "Random", // Example category from the server data
+    }));
+  
+    let conflictsResolved = 0;
+  
+    // Merge server quotes with the existing local quotes
+    serverQuotes.forEach(serverQuote => {
+      const existingQuoteIndex = quotes.findIndex(quote => quote.text === serverQuote.text);
+  
+      if (existingQuoteIndex === -1) {
+        // If the quote doesn't exist, add it
+        quotes.push(serverQuote);
+      } else {
+        // If it exists, check for conflicts
+        if (quotes[existingQuoteIndex].category !== serverQuote.category) {
+          // Conflict found (both text and category differ)
+          resolveConflict(existingQuoteIndex, serverQuote);
+          conflictsResolved++;
+        }
+      }
+    });
+  
+    // Save updated quotes to local storage
+    saveQuotes();
+  
+    // Show notification of data sync completion
+    showNotification(`Data synced! ${conflictsResolved} conflict(s) resolved.`);
+  
+    // Optionally show the latest quote
+    showRandomQuote();
+  }
+  
+  // Function to resolve conflicts manually
+  function resolveConflict(existingQuoteIndex, serverQuote) {
+    // Show a conflict resolution prompt to the user
+    const userChoice = confirm(`Conflict detected: The quote "${quotes[existingQuoteIndex].text}" already exists with category "${quotes[existingQuoteIndex].category}".\nDo you want to keep your local data or use the server's data?\nClick "OK" to use server data, or "Cancel" to keep local data.`);
+  
+    // Resolve the conflict based on user's choice
+    if (userChoice) {
+      // User chooses to use server data
+      quotes[existingQuoteIndex] = serverQuote;
+    } else {
+      // User keeps local data (no action needed)
+      console.log(`Kept local data: "${quotes[existingQuoteIndex].text}" with category "${quotes[existingQuoteIndex].category}"`);
+    }
+  }
+  
+  // Function to post data to the server (simulated)
+  function postData(newQuote) {
+    fetch('https://jsonplaceholder.typicode.com/posts', {
+      method: 'POST',
+      body: JSON.stringify({
+        title: newQuote.text,
+        body: newQuote.category,
+        userId: 1,
+      }),
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+      },
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Posted Data:', data);
+      })
+      .catch(error => console.error('Error posting data:', error));
+  }
+  
+  // Function to show notifications
+  function showNotification(message) {
+    notification.textContent = message;
+    notification.style.display = 'block';
+  
+    // Hide any previous notifications first
+    setTimeout(() => notification.style.display = 'none', 5000);
+  }
+  
+  // Fetch new data every 10 seconds (simulate periodic data fetching)
+  setInterval(fetchData, 10000);
+  
+  // Trigger the first fetch on page load
+  fetchData();
   
