@@ -204,7 +204,7 @@ async function postData(newQuote) {
                 userId: 1,
             }),
             headers: {
-                'Content-type': 'application/json; charset=UTF-8',
+                'Content-Type': 'application/json; charset=UTF-8', // Set the Content-Type header
             },
         });
         const data = await response.json();
@@ -222,4 +222,4 @@ function showNotification(message) {
 }
 
 // Fetch new data every 10 seconds (simulate periodic data fetching)
-setInterval(fetchQuotesFromServer, 30000);
+setInterval(fetchQuotesFromServer, 10000);
