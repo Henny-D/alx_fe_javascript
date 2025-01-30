@@ -131,17 +131,18 @@ function populateCategories() {
 // Populate categories on page load
 populateCategories();
 
-// Function to fetch data from the server (simulated)
-function fetchQuotesFromServer() {
-    fetch('https://jsonplaceholder.typicode.com/posts')
-        .then(response => response.json())
-        .then(data => {
-            console.log('Fetched Data:', data);
+// Function to fetch data from the server (simulated using async/await)
+async function fetchQuotesFromServer() {
+    try {
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+        const data = await response.json();
+        console.log('Fetched Data:', data);
 
-            // Sync the fetched data with the local storage
-            syncQuotesWithServer(data);
-        })
-        .catch(error => console.error('Error fetching data:', error));
+        // Sync the fetched data with the local storage
+        syncQuotesWithServer(data);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
 }
 
 // Sync quotes with the server data (handling conflict resolution)
@@ -193,23 +194,24 @@ function resolveConflict(existingQuoteIndex, serverQuote) {
 }
 
 // Function to post data to the server (simulated)
-function postData(newQuote) {
-    fetch('https://jsonplaceholder.typicode.com/posts', {
-        method: 'POST',
-        body: JSON.stringify({
-            title: newQuote.text,
-            body: newQuote.category,
-            userId: 1,
-        }),
-        headers: {
-            'Content-type': 'application/json; charset=UTF-8',
-        },
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Posted Data:', data);
-        })
-        .catch(error => console.error('Error posting data:', error));
+async function postData(newQuote) {
+    try {
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
+            method: 'POST',
+            body: JSON.stringify({
+                title: newQuote.text,
+                body: newQuote.category,
+                userId: 1,
+            }),
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+            },
+        });
+        const data = await response.json();
+        console.log('Posted Data:', data);
+    } catch (error) {
+        console.error('Error posting data:', error);
+    }
 }
 
 // Function to show notifications
@@ -221,4 +223,3 @@ function showNotification(message) {
 
 // Fetch new data every 10 seconds (simulate periodic data fetching)
 setInterval(fetchQuotesFromServer, 30000);
-
